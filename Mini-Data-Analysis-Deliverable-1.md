@@ -988,7 +988,7 @@ plot1 <- ggplot(top10_genres, aes(x=reorder(genre, +count), y = count)) +
     geom_col(fill = "#46c3be", alpha=.6, width=.4) + coord_flip()
 plot1 <- plot1+labs(y = "Number of games", x = "Genre")
 
-print(plot1)
+plot1
 ```
 
 ![](Mini-Data-Analysis-Deliverable-1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
