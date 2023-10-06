@@ -83,11 +83,14 @@ And that is exactly the first thing that you will do!
 **Note**: We encourage you to use the ones in the `datateachr` package, but if you have a dataset that you'd really like to use, you can include it here. But, please check with a member of the teaching team to see whether the dataset is of appropriate complexity. Also, include a **brief** description of the dataset here to help the teaching team understand your data.
 
 <!-------------------------- Start your work below ---------------------------->
+**_Answer:_**  
 
-1: CHOICE_1\_HERE\
-2: CHOICE_2\_HERE\
-3: CHOICE_3\_HERE\
-4: CHOICE_4\_HERE
+**Datasets chosen:**
+
+1: apt_buildings  
+2: cancer_sample  
+3: steam_games  
+4: vancouver_trees  
 
 <!----------------------------------------------------------------------------->
 
@@ -97,22 +100,113 @@ And that is exactly the first thing that you will do!
 
 <!-------------------------- Start your work below ---------------------------->
 
+**_Answer:_**
+
+The three attributes that I tried to understand by exploring the dataset are:
+* Number of rows and columns in the dataset - using "dim()"  
+* Information present in the dataset in the Column names and Row values - using "head() and tail"  
+* Type of data present in each column - using "glimpse()" and "summary()"  
+
+**Dataset 1: Apartment buildings**
 ```{r}
-### EXPLORE HERE ###
-steam_games
+
+# Dimensions
+dim(apt_buildings)
+
+# First 6 rows 
+head(apt_buildings)
+
+# Last 6 rows 
+tail(apt_buildings)
+
+# Glimpse
+glimpse(apt_buildings)
+
+# Summary 
+summary(apt_buildings)
+
 ```
 
+**Dataset 2: Cancer samples**
+```{r}
+
+
+# Dimesions
+dim(cancer_sample)
+
+# First 6 rows
+head(cancer_sample)
+
+# Last 6 rows 
+tail(cancer_sample)
+
+# Glimpse 
+glimpse(cancer_sample)
+
+# Summary
+summary(cancer_sample)
+
+```
+
+**Dataset 3: Steam games**
+```{r}
+
+# Dimensions
+dim(steam_games)
+
+# First 6 rows
+head(steam_games)
+
+# Last 6 rows
+tail(steam_games)
+
+# Glimpse
+glimpse(steam_games)
+
+#Summary
+summary(steam_games)
+
+```
+
+**Dataset 4: Vancouver trees**
+```{r}
+
+# Dimensions
+dim(vancouver_trees)
+
+# First 6 rows
+head(vancouver_trees)
+
+# Last 6 rows
+tail(vancouver_trees)
+
+# Glimpse
+glimpse(vancouver_trees)
+
+# Summary
+summary(vancouver_trees)
+```
 <!----------------------------------------------------------------------------->
 
 1.3 **(1 point)** Now that you've explored the 4 datasets that you were initially most interested in, let's narrow it down to 1. What lead you to choose this one? Briefly explain your choice below.
 
 <!-------------------------- Start your work below ---------------------------->
+**_Answer:_**  
+
+* The dataset chosen for Mini data analysis is Steam games.   
+* I have chosen this dataset because the information present in the columns of the dataset seemed interesting.  
+* I also liked that this dataset has many entires (number of rows is 40,833) so I can find better solutions for my research question.  
 
 <!----------------------------------------------------------------------------->
 
 1.4 **(2 points)** Time for a  final decision! Going back to the beginning, it's important to have an *end goal* in mind. For example, if I had chosen the `titanic` dataset for my project, I might've wanted to explore the relationship between survival and other variables. Try to think of 1 research question that you would want to answer with your dataset. Note it down below.
 
 <!-------------------------- Start your work below ---------------------------->
+
+**_Answer:_**      
+
+I want to understand which is the most popular genre in terms of number of games produced.
+I also want to understand about the pricing across different popular genres.
 
 <!----------------------------------------------------------------------------->
 
@@ -142,14 +236,115 @@ Make sure that you're using dplyr and ggplot2 rather than base R for this task. 
 2.2 **(4 points)** For each of the 4 exercises that you complete, provide a *brief explanation* of why you chose that exercise in relation to your data (in other words, why does it make sense to do that?), and sufficient comments for a reader to understand your reasoning and code.
 
 <!-------------------------- Start your work below ---------------------------->
+**_Answer:_**
+
+**__Exercise 1: Make a new tibble with a subset of your data, with variables and observations that you are interested in exploring.__**
+
+In order to answer the research question stated above, I only require 3 elements of the tibble.
+The elements are name, genre and price. So, a new tibble has been formed by selecting only the required columns. On seeing the first 6 entries using the head function, it was observed that the dataset has few missing values, so these entries were also removed.
+
+```{r}
+
+new_steam_games <- steam_games %>%
+  select(name, genre, original_price) %>%
+  drop_na()
+
+#Analysing the dimensions of new tibble
+dim(new_steam_games)
+
+#Analysing the first 15 rows of the new tibble
+head(new_steam_games, 15)
+```
+
+**__Exercise 2: Create a new variable based on other variables in your data__**
+
+The following main operations were performed:  
+
+1. Split individual genres  
+  Each genre entry has multiple options embedded in it.  
+  For example, "PLAYERUNKNOWN'S BATTLEGROUNDS" can be classified as Action,Adventure,Massively Multiplayer. 
+  So, the genres were separated at ",", new entries were added for each genre.
+  
+2. Group games by genre  
+   The games were then grouped by genre.
+
+3. Count the number of games per genre  
+   Once grouped, the number of games in each genre was counted.
+
+4. Determine the average price for each genre  
+   Along with the number of games per genre, the mean price of games sold in that genre was also determined.
+
+```{r}
+
+genre_grouping <- new_steam_games %>%
+  mutate(genre = strsplit(as.character(genre), ",")) %>%
+  unnest(genre) %>%
+  group_by(genre) %>%
+  summarise(count = n(), mean_price = mean(original_price))
+
+#Analysing the dimensions of new tibble
+dim(genre_grouping)
+
+#Analysing the first 6 rows of the new tibble
+head(genre_grouping)
+
+```
+
+**__Exercise 3: Plot the distribution of a numeric variable.__**  
+The top 10 genres in with the most games produced have been plotted in a bar graph.
+```{r}
+
+#Arranging genres in descending order according to count
+game_count <- genre_grouping %>% arrange(-count)
+
+#Determining the top 10 genres with respect to the number of games produced
+top10_genres <- head(game_count, 10)
+
+#Plotting the top 10 genres in a bar chart with respect to count
+plot1 <- ggplot(top10_genres, aes(x=reorder(genre, +count), y = count)) +
+    geom_col(fill = "#46c3be", alpha=.6, width=.4) + coord_flip()
+plot1 <- plot1+labs(y = "Number of games", x = "Genre")
+
+print(plot1)
+```
+
+**__Exercise 4: Explore the relationship between 2 variables in a plot.__**  
+To understand the relationship between top genres and price, I have plotted the a bar graph between top genres and mean of original price.
+
+```{r}
+
+plot2 <- ggplot(top10_genres, aes(x=reorder(genre, +mean_price), y = mean_price)) +
+    geom_col(fill = "#E8765D", alpha=.6, width=.4) + geom_text(aes(label = round(mean_price)), hjust=-0.06) + coord_flip()
+plot2 <- plot2+labs(y = "Mean price", x = "Genre")
+
+print(plot2) 
+```
+  
+When we see the analysis between the genre and mean price, we can clearly understand that, the top 3 genres which are also priced more are:
+
+| Genre     |
+|-----------|
+| Action    |
+| Indie     |
+| Adventure |  
+
+Few genres like casual and simulation are produced a lot, however they do not generate as much revenue as the other ones.  
 
 <!----------------------------------------------------------------------------->
 
 # Task 3: Choose research questions 
 
-**(4 points)** So far, you have chosen a dataset and gotten familiar with it through exploring the data. You have also brainstormed one research question that interested you (Task 1.4).  Now it's time to pick 4 research questions that you would like to explore in Milestone 2! Write the 4 questions and any additional comments below. 
+**(4 points)** So far, you have chosen a dataset and gotten familiar with it through exploring the data. You have also brainstormed one research question that interested you (Task 1.4).  Now it's time to pick 4 research questions that you would like to explore in Milestone 2! Write the 4 questions and any additional comments below.   
 
-<!--- *****START HERE***** --->
+**_Answer:_**
+
+1. In this Mini data analysis, observations missing data have not been considered. For Milestone 2, I want to create a new tibble by replacing appropriate values or removing observation appropriately by studying the data more.  
+
+2. I want to understand the growth in the number of games over time, along with growth of popular genres identified here.  
+
+3. I want to analyse which genres have the most positive review, is there a relation between this positive review and price of the games in the genre.
+
+4. I want to determine which game studio has produced the games with positive reviews. 
 
 <!----------------------------->
 
